@@ -1,6 +1,7 @@
-// ignore_for_file: prefer_const_constructors, deprecated_member_use
+// ignore_for_file: deprecated_member_use
 
 import 'package:blogclub/data.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,16 +15,17 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final Color primaryFontColor = Color(0xff0D253C);
-    final Color secondaryFontColor = Color(0xff2D4379);
+    const Color primaryFontColor = Color(0xff0D253C);
+    const Color secondaryFontColor = Color(0xff2D4379);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
           useMaterial3: true,
-          textTheme: TextTheme(
+          textTheme: const TextTheme(
               headline6: TextStyle(
                 fontFamily: defaultFontFamily,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w200,
+                fontSize: 18,
                 color: primaryFontColor,
               ),
               subtitle1: TextStyle(
@@ -33,7 +35,12 @@ class MyApp extends StatelessWidget {
               bodyText2: TextStyle(
                   fontFamily: defaultFontFamily,
                   color: secondaryFontColor,
-                  fontSize: 12))),
+                  fontSize: 12),
+              headline4: TextStyle(
+                  fontFamily: defaultFontFamily,
+                  color: primaryFontColor,
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700))),
       home: const HomeScreen(),
     );
   }
@@ -48,7 +55,7 @@ class HomeScreen extends StatelessWidget {
     final stories = AppDatabase.stories;
     return Scaffold(
       body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         child: SafeArea(
           child: Column(
             children: [
@@ -70,10 +77,10 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
+                padding: const EdgeInsets.fromLTRB(32, 0, 32, 16),
                 child: Row(
                   children: [
-                    Text('Explore today’s', style: textThemeData.headline6),
+                    Text('Explore today’s', style: textThemeData.headline4),
                   ],
                 ),
               ),
@@ -103,8 +110,8 @@ class _StoryList extends StatelessWidget {
       child: ListView.builder(
         itemCount: stories.length,
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.fromLTRB(32, 0, 32, 0),
-        physics: BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+        physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           final story = stories[index];
           return _Story(story: story, textThemeData: textThemeData);
@@ -126,35 +133,12 @@ class _Story extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.fromLTRB(4, 0, 4, 0),
+      margin: const EdgeInsets.fromLTRB(4, 0, 4, 0),
       child: (Column(
         children: [
           Stack(
             children: [
-              Container(
-                width: 68,
-                height: 68,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient:
-                        LinearGradient(begin: Alignment.topLeft, colors: const [
-                      Color(0xff376AED),
-                      Color(0xff49B0E2),
-                      Color(0xff9CECFB),
-                    ])),
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      color: Colors.white),
-                  margin: EdgeInsets.all(2),
-                  padding: EdgeInsets.all(5),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(17),
-                    child: Image.asset(
-                        'assets/img/stories/${story.imageFileName}'),
-                  ),
-                ),
-              ),
+              story.isViewed ? _viewedStory() : _unViewedStory(),
               Positioned(
                 bottom: 0,
                 right: 0,
@@ -166,7 +150,7 @@ class _Story extends StatelessWidget {
               )
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 8,
           ),
           Text(
@@ -175,6 +159,56 @@ class _Story extends StatelessWidget {
           ),
         ],
       )),
+    );
+  }
+
+  Container _unViewedStory() {
+    return Container(
+      width: 68,
+      height: 68,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: const LinearGradient(begin: Alignment.topLeft, colors: [
+            Color(0xff376AED),
+            Color(0xff49B0E2),
+            Color(0xff9CECFB),
+          ])),
+      child: Container(
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22), color: Colors.white),
+        margin: const EdgeInsets.all(2),
+        padding: const EdgeInsets.all(5),
+        child: _profileImage(),
+      ),
+    );
+  }
+
+  Widget _viewedStory() {
+    return SizedBox(
+      width: 68,
+      height: 68,
+      child: DottedBorder(
+        borderPadding: const EdgeInsets.all(1),
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(24),
+        color: const Color(0xff7B8BB2),
+        strokeWidth: 2,
+        dashPattern: const [7, 4],
+        child: Container(
+          margin: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: _profileImage(),
+        ),
+      ),
+    );
+  }
+
+  Widget _profileImage() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(17),
+      child: Image.asset('assets/img/stories/${story.imageFileName}'),
     );
   }
 }
