@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:blogclub/carousel/carousel_slider.dart';
 import 'package:blogclub/data.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -18,13 +19,12 @@ class MyApp extends StatelessWidget {
     const Color primaryFontColor = Color(0xff0D253C);
     const Color secondaryFontColor = Color(0xff2D4379);
     return MaterialApp(
-      title: 'Flutter Demo',
       theme: ThemeData(
           useMaterial3: true,
           textTheme: const TextTheme(
               headline6: TextStyle(
                 fontFamily: defaultFontFamily,
-                fontWeight: FontWeight.w200,
+                fontWeight: FontWeight.bold,
                 fontSize: 18,
                 color: primaryFontColor,
               ),
@@ -84,10 +84,100 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              _StoryList(stories: stories, textThemeData: textThemeData)
+              _StoryList(stories: stories, textThemeData: textThemeData),
+              const SizedBox(
+                height: 16,
+              ),
+              const _CategoryList()
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CategoryList extends StatelessWidget {
+  const _CategoryList();
+  @override
+  Widget build(BuildContext context) {
+    final categories = AppDatabase.categories;
+    return CarouselSlider.builder(
+        itemCount: categories.length,
+        itemBuilder: (context, index, realIndex) {
+          return _CategoryItem(
+            category: categories[realIndex],
+            left: realIndex == 0 ? 32 : 8,
+            right: realIndex == categories.length - 1 ? 32 : 8,
+          );
+        },
+        options: CarouselOptions(
+            initialPage: 0,
+            disableCenter: true,
+            enableInfiniteScroll: false,
+            aspectRatio: 1.2,
+            scrollDirection: Axis.horizontal,
+            viewportFraction: 0.8,
+            scrollPhysics: const BouncingScrollPhysics(),
+            enlargeCenterPage: true,
+            enlargeStrategy: CenterPageEnlargeStrategy.height));
+  }
+}
+
+class _CategoryItem extends StatelessWidget {
+  final Category category;
+  final double left;
+  final double right;
+  const _CategoryItem(
+      {required this.category, required this.left, required this.right});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(left, 0, right, 0),
+      child: Stack(
+        children: [
+          Positioned.fill(
+              left: 55,
+              right: 55,
+              top: 60,
+              bottom: 24,
+              child: Container(
+                decoration: const BoxDecoration(boxShadow: [
+                  BoxShadow(color: Color(0xff0D253C), blurRadius: 20),
+                ]),
+              )),
+          Positioned.fill(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+              ),
+              foregroundDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32),
+                  gradient: const LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.center,
+                      colors: [Color(0xff0D253C), Colors.transparent])),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: Image.asset(
+                  'assets/img/posts/large/${category.imageFileName}',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 42,
+            bottom: 48,
+            child: Text(category.title,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6!
+                    .apply(color: Colors.white)),
+          ),
+        ],
       ),
     );
   }
